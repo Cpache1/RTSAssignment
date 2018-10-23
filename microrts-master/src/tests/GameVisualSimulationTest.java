@@ -4,6 +4,7 @@ import ai.core.AI;
 import ai.*;
 import ai.abstraction.pathfinding.BFSPathFinding;
 import ai.evaluation.SimpleSqrtEvaluationFunction3;
+import assignment.QMHassanPachecoAhmedWright;
 import exercise3_4.StartingBot;
 import gui.PhysicalGameStatePanel;
 import javax.swing.JFrame;
@@ -30,16 +31,16 @@ public class GameVisualSimulationTest {
         boolean gameover = false;
 
         // Set AIs playing the game
-        //AI ai1 = new BotExercise5(TIME_BUDGET, -1, utt, new BFSPathFinding());  //new WorkerRush(utt, new BFSPathFinding());
+        AI ai1 = new QMHassanPachecoAhmedWright(TIME_BUDGET, -1, utt, new BFSPathFinding());  //new WorkerRush(utt, new BFSPathFinding());
 
         //AI ai1 = new WorkerRush(utt);
         //AI ai1 = new StartingBot(TIME_BUDGET,-1,utt,new BFSPathFinding());
-        AI ai1 = new MonteCarlo(100,-1,150,
-                1000, new RandomBiasedAI(), new SimpleSqrtEvaluationFunction3());
-        AI ai2 = new MonteCarlo(100,-1,50,
-                1000, new RandomBiasedAI(), new SimpleSqrtEvaluationFunction3());
+        //AI ai1 = new MonteCarlo(100,-1,150,
+                //1000, new RandomBiasedAI(), new SimpleSqrtEvaluationFunction3());
+        //AI ai2 = new MonteCarlo(100,-1,50,
+                //1000, new RandomBiasedAI(), new SimpleSqrtEvaluationFunction3());
 
-        //AI ai2 = new RandomBiasedAI();
+        AI ai2 = new RandomBiasedAI();
 
 //        AI ai1 = new mc.MonteCarlo(100, -1, 100, 1000,
 //                new RandomBiasedAI(), new SimpleSqrtEvaluationFunction3());
