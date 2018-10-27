@@ -4,13 +4,10 @@ package tests;
 //import ai.Ben.WorkerRush2;
 //import ai.Ben.mattRushAi;
 //import ai.Ben.newAI;
-import ai.abstraction.HeavyRush;
-import ai.abstraction.LightRush;
-import ai.abstraction.RangedRush;
+import ai.abstraction.*;
 import ai.abstraction.pathfinding.PathFinding;
 import ai.core.AI;
 import ai.*;
-import ai.abstraction.WorkerRush;
 import ai.abstraction.pathfinding.BFSPathFinding;
 import ai.evaluation.SimpleSqrtEvaluationFunction3;
 import assignment.QMHassanPachecoAhmedWright;
@@ -30,7 +27,7 @@ public class GameVisualSimulationTest {
     public static void main(String args[]) throws Exception {
         UnitTypeTable utt = new UnitTypeTable();
 
-        PhysicalGameState pgs = PhysicalGameState.load("maps/24x24/basesWorkers24x24H.xml", utt);  // Set map
+        PhysicalGameState pgs = PhysicalGameState.load("maps/16x16/basesWorkers16x16.xml", utt);  // Set map
 //        PhysicalGameState pgs = MapGenerator.basesWorkers8x8Obstacle();
 
         GameState gs = new GameState(pgs, utt);
@@ -49,11 +46,13 @@ public class GameVisualSimulationTest {
 //        AI ai1 = new StrategyChooser(lookahead, pf, new newAI(utt,pf), new WorkerRush2(utt,pf), new LightRush(utt,pf),
 //                new HeavyRush(utt,pf), new RangedRush(utt,pf), new mattRushAi(utt), inertiaCycles);
 
-//        AI ai2 = new RandomBiasedAI();
+        //AI ai1 = new LightRush(utt);
         AI ai1 = new QMHassanPachecoAhmedWright(TIME_BUDGET, -1, utt, new BFSPathFinding());  //new WorkerRush(utt, new BFSPathFinding());
         //AI ai1 = new absmc.MonteCarlo(100, -1, 100, new RandomBiasedAI(), new SimpleSqrtEvaluationFunction3(), utt);
-        AI ai2 = new mc.MonteCarlo(100, -1, 100, 1000,
-                new RandomAI(), new SimpleSqrtEvaluationFunction3());
+        //AI ai2 = new mc.MonteCarlo(100, -1, 100, 1000,
+         //       new RandomAI(), new SimpleSqrtEvaluationFunction3());
+
+        AI ai2 = new RandomAI(utt);
 
 
 //        AI ai1 = new exercise8.MonteCarlo(100, -1, 10, 1000,
@@ -98,3 +97,4 @@ public class GameVisualSimulationTest {
         System.out.println("Game Over");
     }    
 }
+

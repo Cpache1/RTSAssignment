@@ -1,6 +1,7 @@
 package tests;
 
 import ai.RandomBiasedAI;
+import ai.abstraction.WorkerRush;
 import ai.core.AI;
 import ai.evaluation.SimpleEvaluationFunction;
 import ai.mcts.naivemcts.NaiveMCTS;
@@ -38,6 +39,8 @@ public class RunTournament {
                 new SimpleEvaluationFunction()));
         AIs.add(new NaiveMCTS(timeBudget, -1, 100, 20, 0.33f, 0.0f, 0.75f,
                 new RandomBiasedAI(), new SimpleEvaluationFunction(), true));
+
+        //AIs.add(new WorkerRush());
 
         // Create list of maps for tournament
         List<String> maps = new ArrayList<>();
