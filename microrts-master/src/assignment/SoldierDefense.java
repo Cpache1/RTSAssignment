@@ -20,7 +20,8 @@ import rts.units.*;
 
 /**
  *
- * @author Cleyton + + HassanPachecoAhmedWright
+ * @author Cleyton + HassanPachecoAhmedWright
+ * Based on LigthDefense
  */
 public class SoldierDefense extends AbstractionLayerAI {
 
@@ -29,12 +30,12 @@ public class SoldierDefense extends AbstractionLayerAI {
     UnitType workerType;
     UnitType baseType;
     UnitType barracksType;
-    UnitType lightType;
+    UnitType lightType, rangedType, heavyType;
 
     // These strategies behave similarly to WD,
-    //with  the  difference  being  that  the  defense  line  is  formed  by
-    //ranged and lights units for RD and LD, respectively. Since RD
-    //and LD train ranged and lights units, they build a barracks with
+    //with  the  difference  being  that  the  defense  line  is  formed  of
+    //all units - whichever has been created giving how likely this is to happen
+    //they build a barracks with
     //their worker as soon as there is enough resources; the worker
     //returns to collecting resources once the barracks is built.
 
@@ -59,6 +60,11 @@ public class SoldierDefense extends AbstractionLayerAI {
         baseType = utt.getUnitType("Base");
         barracksType = utt.getUnitType("Barracks");
         lightType = utt.getUnitType("Light");
+        /**
+         * Added the remaining types here
+         */
+        rangedType = utt.getUnitType("Range");
+        heavyType = utt.getUnitType("Heavy");
     }
 
 
@@ -134,10 +140,19 @@ public class SoldierDefense extends AbstractionLayerAI {
         }
     }
 
+    /**
+     * It now builds more units than simply light units
+     * The percentages of the units that cost more time to build are lower
+     */
     public void barracksBehavior(Unit u, Player p, PhysicalGameState pgs) {
-        if (p.getResources() >= lightType.cost) {
+        //randomise a float and train the specific unit
+        float chance = r.nextFloat();
+        if (chance<=0.40 & p.getResources() >= lightType.cost)
             train(u, lightType);
-        }
+        else if (chance>0.40 & chance<=0.80 & p.getResources() >= rangedType.cost)
+            train(u, rangedType);
+        else if (chance>0.80 & p.getResources() >= heavyType.cost)
+            train(u, heavyType);
     }
 
     public void meleeUnitBehavior(Unit u, Player p, GameState gs) {
@@ -256,5 +271,6 @@ public class SoldierDefense extends AbstractionLayerAI {
 
         return parameters;
     }
+
 
 }

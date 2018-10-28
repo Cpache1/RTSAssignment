@@ -20,6 +20,7 @@ import rts.units.*;
 /**
  *
  * @author santi + HassanPachecoAhmedWright
+ * Based on LightRush
  */
 public class SoldierRush extends AbstractionLayerAI {
 
@@ -28,12 +29,12 @@ public class SoldierRush extends AbstractionLayerAI {
     UnitType workerType;
     UnitType baseType;
     UnitType barracksType;
-    UnitType lightType;
+    UnitType lightType, rangedType, heavyType;
 
     // Strategy implemented by this class:
-    // If we have any "light": send it to attack to the nearest enemy unit
+    // If we have a unit: send it to attack to the nearest enemy unit
     // If we have a base: train worker until we have 1 workers
-    // If we have a barracks: train light
+    // If we have a barracks: train all types of units
     // If we have a worker: do this if needed: build base, build barracks, harvest resources
 
     public SoldierRush(UnitTypeTable a_utt) {
@@ -57,6 +58,11 @@ public class SoldierRush extends AbstractionLayerAI {
         baseType = utt.getUnitType("Base");
         barracksType = utt.getUnitType("Barracks");
         lightType = utt.getUnitType("Light");
+        /**
+         * Added the remaining types here
+         */
+        rangedType = utt.getUnitType("Range");
+        heavyType = utt.getUnitType("Heavy");
     }
 
 
@@ -132,10 +138,19 @@ public class SoldierRush extends AbstractionLayerAI {
         }
     }
 
+    /**
+     * It now builds more units than simply light units
+     * The percentages of the units that cost more time to build are lower
+     */
     public void barracksBehavior(Unit u, Player p, PhysicalGameState pgs) {
-        if (p.getResources() >= lightType.cost) {
+        //randomise a float and train the specific unit
+        float chance = r.nextFloat();
+        if (chance<=0.40 && p.getResources() >= lightType.cost)
             train(u, lightType);
-        }
+        else if (chance>0.40 && chance<=0.80 && p.getResources() >= rangedType.cost)
+            train(u, rangedType);
+        else if (chance>0.80 && p.getResources() >= heavyType.cost)
+            train(u, heavyType);
     }
 
     public void meleeUnitBehavior(Unit u, Player p, GameState gs) {

@@ -49,10 +49,10 @@ public class GameVisualSimulationTest {
         //AI ai1 = new LightRush(utt);
         AI ai1 = new QMHassanPachecoAhmedWright(TIME_BUDGET, -1, utt, new BFSPathFinding());  //new WorkerRush(utt, new BFSPathFinding());
         //AI ai1 = new absmc.MonteCarlo(100, -1, 100, new RandomBiasedAI(), new SimpleSqrtEvaluationFunction3(), utt);
-        //AI ai2 = new mc.MonteCarlo(100, -1, 100, 1000,
-         //       new RandomAI(), new SimpleSqrtEvaluationFunction3());
+//        AI ai2 = new mc.MonteCarlo(100, -1, 100, 1000,
+//                new RandomAI(), new SimpleSqrtEvaluationFunction3());
 
-        AI ai2 = new RandomAI(utt);
+        AI ai2 = new LightRush(utt);
 
 
 //        AI ai1 = new exercise8.MonteCarlo(100, -1, 10, 1000,

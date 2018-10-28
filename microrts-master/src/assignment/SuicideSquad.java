@@ -21,6 +21,7 @@ import rts.units.*;
 /**
  *
  * @author santi + HassanPachecoAhmedWright
+ * built on WorkerRush
  */
 public class SuicideSquad extends AbstractionLayerAI {
     Random r = new Random();
@@ -29,9 +30,8 @@ public class SuicideSquad extends AbstractionLayerAI {
     UnitType baseType;
 
     // Strategy implemented by this class:
-    // If we have more than 1 "Worker": send the extra workers to attack to the nearest enemy unit
-    // If we have a base: train workers non-stop
-    // If we have a worker: do this if needed: build base, harvest resources
+    // All units attack
+    // If we have a worker: harvest resources
     public SuicideSquad(UnitTypeTable a_utt) {
         this(a_utt, new AStarPathFinding());
     }
@@ -46,10 +46,9 @@ public class SuicideSquad extends AbstractionLayerAI {
         super.reset();
     }
 
-    public void reset(UnitTypeTable a_utt)
-    {
+    public void reset(UnitTypeTable a_utt) {
         utt = a_utt;
-        if (utt!=null) {
+        if (utt != null) {
             workerType = utt.getUnitType("Worker");
             baseType = utt.getUnitType("Base");
         }
@@ -66,62 +65,68 @@ public class SuicideSquad extends AbstractionLayerAI {
         PlayerAction pa = new PlayerAction();
 //        System.out.println("LightRushAI for player " + player + " (cycle " + gs.getTime() + ")");
 
+        /**
+         * Uncommented this. The only way this agent is used is when bases no longer exist
+         */
         // behavior of bases:
-        for(Unit u:pgs.getUnits()) {
-            if (u.getType()==baseType &&
-                    u.getPlayer() == player &&
-                    gs.getActionAssignment(u)==null) {
-                baseBehavior(u,p,pgs);
-            }
-        }
+//        for (Unit u : pgs.getUnits()) {
+//            if (u.getType() == baseType &&
+//                    u.getPlayer() == player &&
+//                    gs.getActionAssignment(u) == null) {
+//                baseBehavior(u, p, pgs);
+//            }
+//        }
 
+        /**
+         * Everything else attacks, except one worker that collects
+         */
         // behavior of melee units:
-        for(Unit u:pgs.getUnits()) {
+        for (Unit u : pgs.getUnits()) {
             if (u.getType().canAttack && !u.getType().canHarvest &&
                     u.getPlayer() == player &&
-                    gs.getActionAssignment(u)==null) {
-                meleeUnitBehavior(u,p,gs);
+                    gs.getActionAssignment(u) == null) {
+                meleeUnitBehavior(u, p, gs);
             }
         }
 
         // behavior of workers:
         List<Unit> workers = new LinkedList<Unit>();
-        for(Unit u:pgs.getUnits()) {
+        for (Unit u : pgs.getUnits()) {
             if (u.getType().canHarvest &&
                     u.getPlayer() == player) {
                 workers.add(u);
             }
         }
-        workersBehavior(workers,p,gs);
+        workersBehavior(workers, p, gs);
 
 
-        return translateActions(player,gs);
+        return translateActions(player, gs);
     }
 
 
-    public void baseBehavior(Unit u,Player p, PhysicalGameState pgs) {
-        if (p.getResources()>=workerType.cost) train(u, workerType);
+    public void baseBehavior(Unit u, Player p, PhysicalGameState pgs) {
+        if (p.getResources() >= workerType.cost) train(u, workerType);
     }
 
     public void meleeUnitBehavior(Unit u, Player p, GameState gs) {
         PhysicalGameState pgs = gs.getPhysicalGameState();
         Unit closestEnemy = null;
         int closestDistance = 0;
-        for(Unit u2:pgs.getUnits()) {
-            if (u2.getPlayer()>=0 && u2.getPlayer()!=p.getID()) {
+        for (Unit u2 : pgs.getUnits()) {
+            if (u2.getPlayer() >= 0 && u2.getPlayer() != p.getID()) {
                 int d = Math.abs(u2.getX() - u.getX()) + Math.abs(u2.getY() - u.getY());
-                if (closestEnemy==null || d<closestDistance) {
+                if (closestEnemy == null || d < closestDistance) {
                     closestEnemy = u2;
                     closestDistance = d;
                 }
             }
         }
-        if (closestEnemy!=null) {
-            attack(u,closestEnemy);
+        if (closestEnemy != null) {
+            attack(u, closestEnemy);
         }
     }
 
-    public void workersBehavior(List<Unit> workers,Player p, GameState gs) {
+    public void workersBehavior(List<Unit> workers, Player p, GameState gs) {
         PhysicalGameState pgs = gs.getPhysicalGameState();
         int nbases = 0;
         int resourcesUsed = 0;
@@ -131,53 +136,54 @@ public class SuicideSquad extends AbstractionLayerAI {
 
         if (workers.isEmpty()) return;
 
-        for(Unit u2:pgs.getUnits()) {
+        for (Unit u2 : pgs.getUnits()) {
             if (u2.getType() == baseType &&
                     u2.getPlayer() == p.getID()) nbases++;
         }
 
         List<Integer> reservedPositions = new LinkedList<Integer>();
-        if (nbases==0 && !freeWorkers.isEmpty()) {
+        if (nbases == 0 && !freeWorkers.isEmpty()) {
             // build a base:
-            if (p.getResources()>=baseType.cost + resourcesUsed) {
+            if (p.getResources() >= baseType.cost + resourcesUsed) {
                 Unit u = freeWorkers.remove(0);
-                buildIfNotAlreadyBuilding(u,baseType,u.getX(),u.getY(),reservedPositions,p,pgs);
-                resourcesUsed+=baseType.cost;
+                buildIfNotAlreadyBuilding(u, baseType, u.getX(), u.getY(), reservedPositions, p, pgs);
+                resourcesUsed += baseType.cost;
             }
         }
 
-        if (freeWorkers.size()>0) harvestWorker = freeWorkers.remove(0);
+        if (freeWorkers.size() > 0) harvestWorker = freeWorkers.remove(0);
 
         // harvest with the harvest worker:
-        if (harvestWorker!=null) {
+        if (harvestWorker != null) {
             Unit closestBase = null;
             Unit closestResource = null;
             int closestDistance = 0;
-            for(Unit u2:pgs.getUnits()) {
+            for (Unit u2 : pgs.getUnits()) {
                 if (u2.getType().isResource) {
                     int d = Math.abs(u2.getX() - harvestWorker.getX()) + Math.abs(u2.getY() - harvestWorker.getY());
-                    if (closestResource==null || d<closestDistance) {
+                    if (closestResource == null || d < closestDistance) {
                         closestResource = u2;
                         closestDistance = d;
                     }
                 }
             }
             closestDistance = 0;
-            for(Unit u2:pgs.getUnits()) {
-                if (u2.getType().isStockpile && u2.getPlayer()==p.getID()) {
+            for (Unit u2 : pgs.getUnits()) {
+                if (u2.getType().isStockpile && u2.getPlayer() == p.getID()) {
                     int d = Math.abs(u2.getX() - harvestWorker.getX()) + Math.abs(u2.getY() - harvestWorker.getY());
-                    if (closestBase==null || d<closestDistance) {
+                    if (closestBase == null || d < closestDistance) {
                         closestBase = u2;
                         closestDistance = d;
                     }
                 }
             }
-            if (closestResource!=null && closestBase!=null) {
+            if (closestResource != null && closestBase != null) {
                 AbstractAction aa = getAbstractAction(harvestWorker);
                 if (aa instanceof Harvest) {
-                    Harvest h_aa = (Harvest)aa;
+                    Harvest h_aa = (Harvest) aa;
 
-                    if (h_aa.getTarget() != closestResource || h_aa.getBase()!=closestBase) harvest(harvestWorker, closestResource, closestBase);
+                    if (h_aa.getTarget() != closestResource || h_aa.getBase() != closestBase)
+                        harvest(harvestWorker, closestResource, closestBase);
                 } else {
                     harvest(harvestWorker, closestResource, closestBase);
 
@@ -185,14 +191,13 @@ public class SuicideSquad extends AbstractionLayerAI {
             }
         }
 
-        for(Unit u:freeWorkers) meleeUnitBehavior(u, p, gs);
+        for (Unit u : freeWorkers) meleeUnitBehavior(u, p, gs);
 
     }
 
 
     @Override
-    public List<ParameterSpecification> getParameters()
-    {
+    public List<ParameterSpecification> getParameters() {
         List<ParameterSpecification> parameters = new ArrayList<>();
 
         parameters.add(new ParameterSpecification("PathFinding", PathFinding.class, new AStarPathFinding()));

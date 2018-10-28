@@ -25,6 +25,7 @@ import rts.units.UnitTypeTable;
 /**
  *
  * @author rubensolv + HassanPachecoAhmedWright
+ * From EconomyRush
  */
 public class EconomyRushModified extends AbstractionLayerAI {
 
@@ -67,7 +68,7 @@ public class EconomyRushModified extends AbstractionLayerAI {
     }
 
     @Override
-    public PlayerAction getAction(int player, GameState gs) throws Exception {
+    public PlayerAction getAction(int player, GameState gs) {
         PhysicalGameState pgs = gs.getPhysicalGameState();
         Player p = gs.getPlayer(player);
         PlayerAction pa = new PlayerAction();
@@ -100,7 +101,7 @@ public class EconomyRushModified extends AbstractionLayerAI {
                 workers.add(u);
             }
         }
-        workersBehavior(workers, p, pgs);
+        workersBehavior(workers, p, pgs, gs);
 
         // behavior of melee units:
         for (Unit u : pgs.getUnits()) {
@@ -224,7 +225,8 @@ public class EconomyRushModified extends AbstractionLayerAI {
         }
     }
 
-    public void workersBehavior(List<Unit> workers, Player p, PhysicalGameState pgs) {
+    //added game state here as well for given need later on
+    public void workersBehavior(List<Unit> workers, Player p, PhysicalGameState pgs, GameState gs) {
         int nbases = 0;
         int nbarracks = 0;
 
@@ -275,8 +277,9 @@ public class EconomyRushModified extends AbstractionLayerAI {
                 }
             }
         }
+        //also modified with the added game state
         // harvest with all the free workers:
-        harvestWorkers(freeWorkers, p, pgs);
+        harvestWorkers(freeWorkers, p, pgs, gs);
 
     }
 
@@ -350,7 +353,8 @@ public class EconomyRushModified extends AbstractionLayerAI {
         return bases;
     }
 
-    protected void harvestWorkers(List<Unit> freeWorkers, Player p, PhysicalGameState pgs) {
+    //added the game state here as it is needed later on
+    protected void harvestWorkers(List<Unit> freeWorkers, Player p, PhysicalGameState pgs, GameState gs) {
         for (Unit u : freeWorkers) {
             Unit closestBase = null;
             Unit closestResource = null;
@@ -385,7 +389,13 @@ public class EconomyRushModified extends AbstractionLayerAI {
                     harvest(u, closestResource, closestBase);
                 }
             }
+            /**
+             * When none of the workers have a closest resource assigned or closest base
+             * they will attack as well
+             */
+            else{
+                meleeUnitBehavior(u, p, gs);
+            }
         }
     }
-
 }

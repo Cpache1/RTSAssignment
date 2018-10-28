@@ -1,11 +1,14 @@
 package tests;
 
 import ai.RandomBiasedAI;
+import ai.abstraction.LightRush;
 import ai.abstraction.WorkerRush;
+import ai.abstraction.pathfinding.BFSPathFinding;
 import ai.core.AI;
 import ai.evaluation.SimpleEvaluationFunction;
 import ai.mcts.naivemcts.NaiveMCTS;
 import ai.mcts.uct.UCT;
+import assignment.QMHassanPachecoAhmedWright;
 import rts.units.UnitTypeTable;
 
 import java.io.*;
@@ -35,12 +38,15 @@ public class RunTournament {
         List<AI> AIs = new ArrayList<>();
 
         // Add AIs to list
+        AIs.add(new QMHassanPachecoAhmedWright(timeBudget, -1,
+                new UnitTypeTable(), new BFSPathFinding()));
         AIs.add(new UCT(timeBudget, -1, 100, 20, new RandomBiasedAI(),
                 new SimpleEvaluationFunction()));
         AIs.add(new NaiveMCTS(timeBudget, -1, 100, 20, 0.33f, 0.0f, 0.75f,
                 new RandomBiasedAI(), new SimpleEvaluationFunction(), true));
-
-        //AIs.add(new WorkerRush());
+        AIs.add(new RandomBiasedAI());
+        AIs.add(new WorkerRush(new UnitTypeTable()));
+        AIs.add(new LightRush(new UnitTypeTable()));
 
         // Create list of maps for tournament
         List<String> maps = new ArrayList<>();
